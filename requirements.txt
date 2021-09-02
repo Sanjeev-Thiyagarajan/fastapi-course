@@ -19,7 +19,6 @@ graphene==2.1.9
 graphql-core==2.3.2
 graphql-relay==2.0.1
 greenlet==1.1.1
-gunicorn==20.1.0
 h11==0.12.0
 httptools==0.3.0
 idna==3.2

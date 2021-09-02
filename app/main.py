@@ -11,7 +11,7 @@ from .config import settings
 
 app = FastAPI()
 
-origins = ["https://www.google.com", "https://www.youtube.com"]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
