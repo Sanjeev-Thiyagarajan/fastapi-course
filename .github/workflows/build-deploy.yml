@@ -3,7 +3,7 @@ name: Build code
 on: [push, pull_request]
 
 jobs:
-  job1:
+  build:
     runs-on: ubuntu-latest
 
     environment:
@@ -46,3 +46,11 @@ jobs:
         run: |
           pip install Pytest
           pytest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: deploy stuff
+        run: echo yeah I am deploying stuff
