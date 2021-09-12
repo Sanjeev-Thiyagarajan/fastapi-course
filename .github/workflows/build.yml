@@ -10,7 +10,7 @@ jobs:
       name: testing
     env:
       DATABASE_HOSTNAME: localhost
-      DATABASE_PORT: ${{secrets.DATABASE_PORT}}
+      DATABASE_PORT: "5432"
       DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
       DATABASE_NAME: ${{secrets.DATABASE_NAME}}
       DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
@@ -25,7 +25,7 @@ jobs:
           POSTGRES_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
           POSTGRES_DB: ${{secrets.DATABASE_NAME}}_test
         ports:
-          - ${{secrets.DATABASE_PORT}}:{{secrets.DATABASE_PORT}}
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
