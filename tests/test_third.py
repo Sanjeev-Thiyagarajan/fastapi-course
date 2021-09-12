@@ -8,7 +8,7 @@ def test_create_user(client):
     response = client.post(
         "/users", json={"email": "sanjeev@gmail.com", "password": "password123"})
 
-    assert response.status_code == 201
+    assert response.status_code == 202
 
 
 # def test_login_user(client, test_user):
