@@ -54,7 +54,8 @@ jobs:
       name: production
 
     steps:
-      - uses: actions/checkout@v2
+      - name: checkout git
+        uses: actions/checkout@v2
       - name: deploy to heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
