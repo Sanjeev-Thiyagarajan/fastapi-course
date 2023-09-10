@@ -40,7 +40,7 @@ pip install fastapi[all]
 
 ````
 
-Then go this repo folder in your local computer run follwoing command
+Then go this repo folder in your local computer run following command
 ````
 
 uvicorn main:app --reload
