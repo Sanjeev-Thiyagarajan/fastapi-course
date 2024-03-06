@@ -47,3 +47,9 @@ def test_incorrect_login(test_user, client, email, password, status_code):
 
     assert res.status_code == status_code
     # assert res.json().get('detail') == 'Invalid Credentials'
+
+def test_user_conflict_user_already_exists(client, test_user):
+    res = client.post("/users/",
+                      json={"email": test_user["email"], "password": "somePassword"})
+    
+    assert res.status_code == 409
