@@ -1,121 +1,55 @@
-from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
-from sqlalchemy.orm import Session
-from typing import List, Optional
-
-from sqlalchemy import func
+from fastapi import status, HTTPException, Depends, APIRouter
+from typing import List
 from app.db.database import get_session
-from app.v1.schemas import schemas
-from app.utils import utils
-from app.core import oauth2
-from app.v1.models import models
-
+from app.v1.schemas.post import PostCreate, PostOut
+from app.v1.service.post import PostService
+from app.db.database import get_session
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 post_router = APIRouter()
+post_service = PostService()
 
 
-# @router.get("/", response_model=List[schemas.Post])
-@post_router.get("/", response_model=List[schemas.PostOut])
-def get_posts(db: Session = Depends(get_session), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
-    # results = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
-    #     models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id)
 
-    # cursor.execute("""SELECT * FROM posts """)
-    # posts = cursor.fetchall()
-
-    # posts = db.execute(
-    #     'select posts.*, COUNT(votes.post_id) as votes from posts LEFT JOIN votes ON posts.id=votes.post_id  group by posts.id')
-    # results = []
-    # for post in posts:
-    #     results.append(dict(post))
-    # print(results)
-    # posts = db.query(models.Post).filter(
-    #     models.Post.title.contains(search)).limit(limit).offset(skip).all()
-
-    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
-        models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
-    return posts
+# Get all post
+@post_router.get("/", status_code=status.HTTP_200_OK,response_model=List[PostOut])
+async def get_all_posts(session: AsyncSession = Depends(get_session)):
+    user_posts = await post_service.get_all_posts(session)
+    
+    return user_posts
 
 
-@post_router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
-def create_posts(post: schemas.PostCreate, db: Session = Depends(get_session), current_user: int = Depends(oauth2.get_current_user)):
-    # cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
-    #                (post.title, post.content, post.published))
-    # new_post = cursor.fetchone()
-
-    # conn.commit()
-
-    new_post = models.Post(owner_id=current_user.id, **post.dict())
-    db.add(new_post)
-    db.commit()
-    db.refresh(new_post)
-
-    return new_post
+@post_router.post("/", response_model=PostOut)
+async def create_post(post_data:PostCreate, session: AsyncSession=Depends(get_session)):
+    
+    user_post = await post_service.create_new_posts(post_data,session)
+    
+    return user_post
 
 
-@post_router.get("/{id}", response_model=schemas.PostOut)
-def get_post(id: int, db: Session = Depends(get_session), current_user: int = Depends(oauth2.get_current_user)):
-    # cursor.execute("""SELECT * from posts WHERE id = %s """, (str(id),))
-    # post = cursor.fetchone()
-    # post = db.query(models.Post).filter(models.Post.id == id).first()
-
-    post = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
-        models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(models.Post.id == id).first()
-
-    if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"post with id: {id} was not found")
-
+@post_router.get("/{post_uid}", response_model=PostOut)
+async def get_post_by_id(post_uid:str, session:AsyncSession=Depends(get_session)):
+    
+    post = await post_service.get_posts_by_id(post_uid=post_uid,session=session)
+    
     return post
 
-
-@post_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_session), current_user: int = Depends(oauth2.get_current_user)):
-
-    # cursor.execute(
-    #     """DELETE FROM posts WHERE id = %s returning *""", (str(id),))
-    # deleted_post = cursor.fetchone()
-    # conn.commit()
-    post_query = db.query(models.Post).filter(models.Post.id == id)
-
-    post = post_query.first()
-
-    if post == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"post with id: {id} does not exist")
-
-    if post.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Not authorized to perform requested action")
-
-    post_query.delete(synchronize_session=False)
-    db.commit()
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@post_router.put("/{id}", response_model=schemas.Post)
-def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_session), current_user: int = Depends(oauth2.get_current_user)):
-
-    # cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""",
-    #                (post.title, post.content, post.published, str(id)))
-
-    # updated_post = cursor.fetchone()
-    # conn.commit()
-
-    post_query = db.query(models.Post).filter(models.Post.id == id)
-
-    post = post_query.first()
-
-    if post == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"post with id: {id} does not exist")
-
-    if post.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Not authorized to perform requested action")
-
-    post_query.update(updated_post.dict(), synchronize_session=False)
-
-    db.commit()
-
-    return post_query.first()
+@post_router.put("/{post_uid}", response_model=PostOut)
+async def update_post(post_uid:str, post_data:PostCreate, session:AsyncSession=Depends(get_session)):
+    is_post = await post_service.get_posts_by_id(post_uid,session)
+    
+    if is_post:
+        updated_post = await post_service.update_post(post_update_data=post_data,session=session)
+        
+        return updated_post
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Post not found")
+    
+    
+@post_router.delete("/{post_uid}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_post(post_uid:str,session:AsyncSession = Depends(get_session)):
+    
+    post = await post_service.delete_post(post_uid=post_uid,session=session)
+    
+    if post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")

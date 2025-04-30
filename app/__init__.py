@@ -15,7 +15,7 @@ from app.db.database import initdb
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
-    print("Server is staring up....")
+    print("Server is starting up....")
     
     await initdb()
     
@@ -23,7 +23,7 @@ async def lifespan(app:FastAPI):
     
     
     print("Server is shutting down....")
-
+    
 version = "v1"
 version_prefix = f"/api/{version}"
 

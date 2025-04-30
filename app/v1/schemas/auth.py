@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 import uuid
 
@@ -12,8 +12,8 @@ class UserOut(BaseModel):
     }
 
 class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
+    email: EmailStr = Field(max_length=50)
+    password: str = Field(max_length=50)
 
 
 class UserLogin(BaseModel):

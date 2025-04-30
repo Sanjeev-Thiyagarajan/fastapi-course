@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from app.v1.models.models import Post
+from fastapi import HTTPException,status
 from sqlmodel import select,desc
 from app.v1.schemas.post import PostCreate
-
+from datetime import datetime
 
 class PostService:
     async def get_all_posts(self,session:AsyncSession):
@@ -14,18 +15,61 @@ class PostService:
         
         return posts
     
-    async def get_user_posts(self,user_uid:str,session:AsyncSession):
+    async def get_posts_by_id(self,post_uid:str,session:AsyncSession):
         
-        statement = select(Post).where(Post.user_uid == user_uid)
+        statement = select(Post).where(Post.uid == post_uid)
         
         result = await session.execute(statement)
         
-        user_posts = result.all()
+        user_posts = result.first
         
-        return user_posts
+        
+        return user_posts if user_posts is not None else None
     
     
     async def create_new_posts(self,post_data:PostCreate,session:AsyncSession):
         
-        pass
+        new_post_data = post_data.model_dump()
         
+        new_post = Post(**new_post_data)
+        
+        new_post.published_date = new_post_data["published_date"]
+        
+        # new_post.user_uid = user_uid
+        
+        session.add(new_post)
+        
+        await session.commit()
+        
+        return new_post
+    
+    
+    async def update_post(self,post_uid:str, post_update_data:PostCreate,session:AsyncSession):
+        post = await self.get_posts_by_id(post_uid,session)
+        
+        if post:
+            post_dict = post_update_data.model_dump()
+            
+            for post,k,v in post_dict.items():
+                setattr(post,k,v)
+                
+            await session.commit()
+            
+            return post
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    
+    
+    async def delete_post(self,post_uid:str, session:AsyncSession):
+        post = await self.get_posts_by_id(post_uid,session)
+        
+        if post:
+            await session.delete(post)
+            
+            await session.commit()
+            
+            return {}
+        
+        else:
+            return None
+            
+            

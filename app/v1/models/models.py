@@ -12,7 +12,7 @@ class Post(SQLModel, table=True):
     uid : uuid.UUID= Field(sa_column=Column(pg.UUID, primary_key=True, unique=True,nullable=False,default=uuid.uuid4))
     title: str
     content: str
-    published_date: str
+    published_date: datetime
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     
     user_uid: Optional[uuid.UUID] = Field(default=None,foreign_key="users.uid")

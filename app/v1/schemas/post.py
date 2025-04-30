@@ -6,7 +6,7 @@ import uuid
 class PostBase(BaseModel):
     title: str
     content: str
-    published_date: bool = True
+    published_date: datetime 
     
 
 
@@ -14,19 +14,10 @@ class PostCreate(PostBase):
     pass
 
 
-class Post(PostBase):
-    uid: uuid.UUID
-    created_at: datetime
-    owner_id: int
-
-    model_config = {
-        'from_attributes': True
-    }
-    
 class PostOut(BaseModel):
-    Post: Post
-    votes: int
+    uid: uuid.UUID
+    title: str
+    content:str
+    published_date: datetime
+    created_at: datetime
 
-    model_config = {
-        'from_attributes': True
-    }
