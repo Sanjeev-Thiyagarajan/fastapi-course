@@ -1,8 +1,8 @@
 import pytest
 from jose import jwt
-from app import schemas
+from app.v1.schemas import schemas
 
-from app.config import settings
+from app.utils.config import settings
 
 
 # def test_root(client):

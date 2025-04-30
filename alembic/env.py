@@ -4,14 +4,22 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from app.models import Base
-from app.config import settings
+from sqlmodel import SQLModel
+from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy import create_engine 
+from app.utils.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+
+
 config = context.config
-config.set_main_option(
-    "sqlalchemy.url", f'postgresql+psycopg2://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}')
+
+# Replace async URL with sync for Alembic (critical!)
+sync_database_url = settings.database_url.replace("postgresql+asyncpg", "postgresql")
+config.set_main_option("sqlalchemy.url", sync_database_url)
+
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -21,7 +29,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -54,25 +62,21 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
+    """Run migrations in 'online' mode."""
+    engine = create_engine(
+        sync_database_url,
         poolclass=pool.NullPool,
     )
 
-    with connectable.connect() as connection:
+    with engine.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
         )
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 
 if context.is_offline_mode():

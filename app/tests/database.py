@@ -5,9 +5,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from app.main import app
 
-from app.config import settings
-from app.database import get_db
-from app.database import Base
+from app.utils.config import settings
+from app.db.database import get_db
+from app.db.database import Base
 from alembic import command
 
 
