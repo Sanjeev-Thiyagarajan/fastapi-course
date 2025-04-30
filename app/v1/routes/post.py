@@ -10,10 +10,7 @@ from app.core import oauth2
 from app.v1.models import models
 
 
-post_router = APIRouter(
-    prefix="/posts",
-    tags=['Posts']
-)
+post_router = APIRouter()
 
 
 # @router.get("/", response_model=List[schemas.Post])

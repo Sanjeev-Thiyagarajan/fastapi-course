@@ -6,10 +6,7 @@ from app.utils import utils
 from app.core import oauth2
 from app.v1.models import models
 
-vote_router = APIRouter(
-    prefix="/vote",
-    tags=['Vote']
-)
+vote_router = APIRouter()
 
 
 @vote_router.post("/", status_code=status.HTTP_201_CREATED)
