@@ -12,7 +12,7 @@ post_service = PostService()
 
 
 # Get all post
-@post_router.get("/", status_code=status.HTTP_200_OK,response_model=List[PostOut])
+@post_router.get("/", status_code=status.HTTP_200_OK, response_model=List[PostOut])
 async def get_all_posts(session: AsyncSession = Depends(get_session)):
     user_posts = await post_service.get_all_posts(session)
     
@@ -34,16 +34,14 @@ async def get_post_by_id(post_uid:str, session:AsyncSession=Depends(get_session)
     
     return post
 
-@post_router.put("/{post_uid}", response_model=PostOut)
+@post_router.patch("/{post_uid}", response_model=PostOut)
 async def update_post(post_uid:str, post_data:PostCreate, session:AsyncSession=Depends(get_session)):
-    is_post = await post_service.get_posts_by_id(post_uid,session)
-    
-    if is_post:
-        updated_post = await post_service.update_post(post_update_data=post_data,session=session)
-        
-        return updated_post
+    book_to_update = await post_service.update_post(post_uid,post_data,session)
+
+    if book_to_update is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
     else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Post not found")
+        return book_to_update
     
     
 @post_router.delete("/{post_uid}", status_code=status.HTTP_204_NO_CONTENT)

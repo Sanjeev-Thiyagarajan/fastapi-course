@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlmodel.ext.asyncio.session import AsyncSession
 from app.v1.models.models import Post
 from fastapi import HTTPException,status
 from sqlmodel import select,desc
@@ -9,7 +9,7 @@ class PostService:
     async def get_all_posts(self,session:AsyncSession):
         statement = select(Post).order_by(desc(Post.created_at))
         
-        result = await session.execute(statement)
+        result = await session.exec(statement)
         
         posts = result.all()
         
@@ -19,9 +19,9 @@ class PostService:
         
         statement = select(Post).where(Post.uid == post_uid)
         
-        result = await session.execute(statement)
+        result = await session.exec(statement)
         
-        user_posts = result.first
+        user_posts = result.first()
         
         
         return user_posts if user_posts is not None else None
@@ -50,7 +50,7 @@ class PostService:
         if post:
             post_dict = post_update_data.model_dump()
             
-            for post,k,v in post_dict.items():
+            for k,v in post_dict.items():
                 setattr(post,k,v)
                 
             await session.commit()

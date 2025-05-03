@@ -21,3 +21,5 @@ class PostOut(BaseModel):
     published_date: datetime
     created_at: datetime
 
+    class Config:
+        from_attributes = True
