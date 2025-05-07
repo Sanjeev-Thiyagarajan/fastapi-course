@@ -8,6 +8,10 @@ from app.v1.models import models
 from app.v1.service.auth import AuthService
 from app.v1.schemas.auth import UserCreate
 from fastapi.responses import JSONResponse
+from app.core.depedencies import RefreshTokenBearer,AccessTokenBearer
+from datetime import datetime
+from app.utils.utils import create_access_token
+from app.utils.redis import add_jti_to_blocklist
 
 auth_router = APIRouter()
 
@@ -41,30 +45,43 @@ async def login_user(user_data:UserCreate, session: AsyncSession=Depends(get_ses
         password_valid = verify_password(user_password, user.password_hash)
         
         if password_valid:
-            access_token = create_access_token(user_data={"email":user.email, "user_uid":user.uid})
-            refresh_token = create_access_token(user_data={"email":user.email,"user_uid":user.uid}, refresh=True)
+            access_token = create_access_token(user_data={"email":user.email, "user_uid":str(user.uid)})
+            refresh_token = create_access_token(user_data={"email":user.email,"user_uid":str(user.uid)}, refresh=True)
             
             return JSONResponse(
                 content={
                     "message":"Login successful",
                     "access_token":access_token,
                     "refresh_token":refresh_token,
-                    "user": {"email": user.email,"user_uid":user.uid}
+                    "user": {"email": user.email,"user_uid":str(user.uid)}
                 }
             )
 
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Email and Password")
 
 
+@auth_router.get("/refresh_token")
+async def generate_new_access_token(token_details:dict=RefreshTokenBearer()):
+    
+    expiry_time = token_details["exp"]
+    
+    if datetime.fromtimestamp(expiry_time) > datetime.now():
+        access_token = create_access_token(user_data=token_details["user"])
+        
+        return JSONResponse(content={"access_token": access_token})
+    
+    raise HTTPException( status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or Expired Token")
 
+@auth_router.get("/logout")
+async def revoke_token(token_details: dict=Depends(AccessTokenBearer)):
+    jti =token_details["jti"]
+    
+    await add_jti_to_blocklist(jti=jti)
+    
+    return JSONResponse(content={
+        "message":"Logged Out Successfully"
+    },
+    status_code=status.HTTP_200_OK
+                        
+    )
 
-
-
-@auth_router.get('/{id}')
-def get_user(id: int, db: AsyncSession = Depends(get_session), ):
-    user = db.query(models.User).filter(models.User.id == id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"User with id: {id} does not exist")
-
-    return user

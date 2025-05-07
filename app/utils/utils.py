@@ -19,11 +19,12 @@ def verify_password(password: str, hash:str) -> bool:
 
 
 # The token function
-def create_access_token(user_data:dict, refresh:bool=False) -> str:
+def create_access_token(user_data:dict, expiry: timedelta = None, refresh:bool=False) -> str:
     
     payload = {
         'user_data':user_data,
-        'exp': datetime.now() + timedelta(minutes=settings.access_token_expire_minutes),
+        'exp': datetime.now() + (expiry if expiry is not None else timedelta(minutes=settings.access_token_expire_minutes)),
+        # 'exp': datetime.now() + timedelta(minutes=settings.access_token_expire_minutes),
         'jti': str(uuid.uuid4()),
         'refresh':refresh
     }

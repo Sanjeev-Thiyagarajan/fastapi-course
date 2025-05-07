@@ -10,7 +10,9 @@ class Settings(BaseSettings):
     database_name: str
     secret_key: str
     algorithm: str
-    access_token_expire_minutes: str
+    access_token_expire_minutes: int
+    redis_host: str
+    redis_port: str
 
     
     model_config =SettingsConfigDict(env_file=".env")

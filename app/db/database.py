@@ -5,14 +5,18 @@ from app.utils.config import settings
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import sessionmaker
+from contextlib import asynccontextmanager
+
 
 engine = create_async_engine(
     url=settings.database_url,
-    echo=True,
-    connect_args = {"statement_cache_size":0}
+    echo=False,
+    connect_args = {"statement_cache_size":0},
+    pool_size=10,
+    max_overflow=20,
+    pool_timeout=30,
+    pool_recycle=1800
 )
-
-
 
 
 async def initdb():
@@ -26,9 +30,6 @@ async def get_session()-> AsyncSession:
     
     async with async_session() as session:
         yield session
-
-
-
 
 
 
