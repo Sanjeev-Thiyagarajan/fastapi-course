@@ -6,9 +6,9 @@ from app.utils.utils import generate_password_hash,verify_password,create_access
 from app.core import oauth2
 from app.v1.models import models
 from app.v1.service.auth import AuthService
-from app.v1.schemas.auth import UserCreate
+from app.v1.schemas.auth import UserCreate,UserPostModel
 from fastapi.responses import JSONResponse
-from app.core.depedencies import RefreshTokenBearer,AccessTokenBearer, get_current_user
+from app.core.depedencies import RefreshTokenBearer,AccessTokenBearer, get_current_user,RoleChecker
 from datetime import datetime
 from app.utils.utils import create_access_token
 from app.utils.redis import add_jti_to_blocklist
@@ -17,6 +17,7 @@ auth_router = APIRouter()
 
 auth_service = AuthService()
 
+role_checker = RoleChecker(["admin","user"])
 
 @auth_router.post("/signup", response_model=UserOut , status_code=status.HTTP_201_CREATED)
 async def create_user(user_data: UserCreate, session: AsyncSession = Depends(get_session)):
@@ -72,8 +73,8 @@ async def generate_new_access_token(token_details:dict=RefreshTokenBearer()):
     
     raise HTTPException( status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or Expired Token")
 
-@auth_router.get("/me")
-async def get_current_user(user =Depends(get_current_user)):
+@auth_router.get("/me", response_model=UserPostModel)
+async def get_current_user(user =Depends(get_current_user), _:bool =Depends(role_checker)):
     return user
 
 @auth_router.get("/logout")

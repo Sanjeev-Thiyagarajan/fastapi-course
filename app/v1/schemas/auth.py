@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 import uuid
+from app.v1.schemas.post import PostOut
+from typing import List
 
 class UserOut(BaseModel):
     uid: uuid.UUID
@@ -19,3 +21,9 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UserPostModel(BaseModel):
+    uid:uuid.UUID
+    email: EmailStr
+    created_at: datetime
+    # posts: List[PostOut]
