@@ -1,13 +1,14 @@
-from app.v1.models.models import User
+from app.v1.models.models import User,Post,Vote
 from app.v1.schemas.auth import UserCreate
 from app.utils.utils import generate_password_hash
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
+from fastapi import Depends 
 
 class AuthService:
     async def get_user_by_email(self,email:str, session:AsyncSession):
         statement = select(User).where(User.email == email)
-        
+            
         result = await session.exec(statement)
         
         user = result.first()
@@ -31,4 +32,3 @@ class AuthService:
         await session.commit()
                 
         return new_user
-    

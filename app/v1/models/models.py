@@ -31,6 +31,7 @@ class User(SQLModel, table=True):
     uid:uuid.UUID = Field(sa_column=Column(pg.UUID, primary_key=True, unique=True,nullable=False,default=uuid.uuid4))
     email: str
     password_hash : str
+    role : str = Field(sa_column=Column(pg.VARCHAR, server_default="user",nullable=False))
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     
     posts: List["Post"] = Relationship(back_populates="owner", sa_relationship_kwargs={"lazy":"selectin"})

@@ -8,7 +8,7 @@ from app.v1.models import models
 from app.v1.service.auth import AuthService
 from app.v1.schemas.auth import UserCreate
 from fastapi.responses import JSONResponse
-from app.core.depedencies import RefreshTokenBearer,AccessTokenBearer
+from app.core.depedencies import RefreshTokenBearer,AccessTokenBearer, get_current_user
 from datetime import datetime
 from app.utils.utils import create_access_token
 from app.utils.redis import add_jti_to_blocklist
@@ -72,9 +72,14 @@ async def generate_new_access_token(token_details:dict=RefreshTokenBearer()):
     
     raise HTTPException( status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or Expired Token")
 
+@auth_router.get("/me")
+async def get_current_user(user =Depends(get_current_user)):
+    return user
+
 @auth_router.get("/logout")
-async def revoke_token(token_details: dict=Depends(AccessTokenBearer)):
-    jti =token_details["jti"]
+async def revoke_token(token_details: dict=Depends(AccessTokenBearer())):
+    print(token_details)
+    jti=token_details["jti"]
     
     await add_jti_to_blocklist(jti=jti)
     
@@ -84,4 +89,7 @@ async def revoke_token(token_details: dict=Depends(AccessTokenBearer)):
     status_code=status.HTTP_200_OK
                         
     )
+    
+
+
 
