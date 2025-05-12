@@ -2,7 +2,8 @@ from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 import uuid
 from app.v1.schemas.post import PostOut
-from typing import List
+from app.v1.schemas.vote import VoteCreate
+from typing import List,Optional
 
 class UserOut(BaseModel):
     uid: uuid.UUID
@@ -24,3 +25,4 @@ class UserLogin(BaseModel):
 
 class UserPostModel(UserOut):
     posts: List[PostOut]
+    votes: List[VoteCreate] = []

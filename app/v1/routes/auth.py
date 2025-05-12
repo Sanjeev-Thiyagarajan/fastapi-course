@@ -79,7 +79,7 @@ async def get_current_user(user =Depends(get_current_user), _:bool =Depends(role
 
 @auth_router.get("/logout")
 async def revoke_token(token_details: dict=Depends(AccessTokenBearer())):
-    print(token_details)
+
     jti=token_details["jti"]
     
     await add_jti_to_blocklist(jti=jti)

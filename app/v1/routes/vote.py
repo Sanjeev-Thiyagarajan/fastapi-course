@@ -22,13 +22,10 @@ async def vote_post(vote_data:VoteCreate,post_uid:str ,token_details:dict=Depend
 async def delete_vote(post_uid:str, token_details:dict=Depends(AccessTokenBearer()), session:AsyncSession=Depends(get_session)):
     user_uid = token_details["user_data"]["user_uid"]
     
-    print(f"user id", user_uid)
-    print(f"post id", post_uid)
-    
     vote_delete = await vote_service.delete_vote_from_post(user_uid=user_uid, post_uid=post_uid,session=session)
     
     if vote_delete:
-            return {"message": "Successfully deleted vote"}
+            return 
     
 
     

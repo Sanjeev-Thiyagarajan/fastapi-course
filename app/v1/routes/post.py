@@ -1,7 +1,7 @@
 from fastapi import status, HTTPException, Depends, APIRouter
 from typing import List
 from app.db.database import get_session
-from app.v1.schemas.post import PostCreate, PostOut
+from app.v1.schemas.post import PostCreate, PostOut, PostWithVote, PostRead
 from app.v1.service.post import PostService
 from app.db.database import get_session
 from sqlalchemy.ext.asyncio.session import AsyncSession
@@ -29,7 +29,7 @@ async def create_post(post_data:PostCreate, session: AsyncSession=Depends(get_se
     
     return user_new_post
 
-@post_router.post("/{user_uid}")
+@post_router.post("/{user_uid}", response_model=List[PostWithVote])
 async def get_user_posts(user_uid:str, session:AsyncSession=Depends(get_session)):
     
     user_post = await post_service.get_user_post(user_uid=user_uid, session=session)

@@ -1,9 +1,10 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.v1.models.models import Post
+from app.v1.models.models import Post,Vote
 from fastapi import HTTPException,status
 from sqlmodel import select,desc
-from app.v1.schemas.post import PostCreate
+from app.v1.schemas.post import PostCreate, PostOut,VoteRead
 from datetime import datetime
+from sqlalchemy.orm import selectinload
 
 class PostService:
     async def get_all_posts(self,session:AsyncSession):
@@ -16,11 +17,28 @@ class PostService:
         return posts
     
     async def get_user_post(self,user_uid:str,session:AsyncSession):
-        statement = select(Post).where(Post.user_uid == user_uid).order_by(desc(Post.created_at))
+        # statement = select(Post).where(Post.user_uid == user_uid).order_by(desc(Post.created_at))
+        
+        statement = select(Post,Vote).join(Vote, Post.uid == Vote.post_uid, isouter=True).where(Post.user_uid == user_uid).order_by(desc(Post.created_at))
         
         result = await session.exec(statement=statement)
         
-        return result.all()
+        rows = result.all()
+        print(f"Rows response is",rows)
+
+        
+        response = [
+            {
+                "post":PostOut.model_validate(post),
+                "vote": VoteRead.model_validate(vote) if vote else None
+            }
+            
+            for post,vote in rows
+        ]
+        
+        print(f"Response is",response)
+        return response
+    
     
     async def get_posts_by_id(self,post_uid:str,session:AsyncSession):
         
