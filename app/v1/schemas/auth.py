@@ -22,8 +22,5 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-class UserPostModel(BaseModel):
-    uid:uuid.UUID
-    email: EmailStr
-    created_at: datetime
-    # posts: List[PostOut]
+class UserPostModel(UserOut):
+    posts: List[PostOut]

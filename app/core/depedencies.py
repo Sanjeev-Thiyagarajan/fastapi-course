@@ -24,6 +24,12 @@ class TokenBearer(HTTPBearer):
         
         token_data = decode_access_token(token=token)
         
+        if token_data is None or "jti" not in token_data:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={
+                "error":"This token is invalid",
+                "resolution":"Please get a new token"
+            })
+        
         if await token_in_blocklist(token_data["jti"]):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={
                 "error":"This token is invalid or has been revoked",

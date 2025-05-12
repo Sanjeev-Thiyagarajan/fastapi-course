@@ -23,10 +23,19 @@ async def get_all_posts(session: AsyncSession = Depends(get_session),token_detai
 @post_router.post("/", response_model=PostOut, dependencies=[role_checker])
 async def create_post(post_data:PostCreate, session: AsyncSession=Depends(get_session),token_details=Depends(access_token_bearer)):
     
-    user_post = await post_service.create_new_posts(post_data,session)
+    user_id = token_details["user_data"]["user_uid"]
+    
+    user_new_post = await post_service.create_new_posts(user_uid=user_id,post_data=post_data,session=session)
+    
+    return user_new_post
+
+@post_router.post("/{user_uid}")
+async def get_user_posts(user_uid:str, session:AsyncSession=Depends(get_session)):
+    
+    user_post = await post_service.get_user_post(user_uid=user_uid, session=session)
     
     return user_post
-
+    
 
 @post_router.get("/{post_uid}", response_model=PostOut,  dependencies=[role_checker])
 async def get_post_by_id(post_uid:str, session:AsyncSession=Depends(get_session),token_details=Depends(access_token_bearer)):

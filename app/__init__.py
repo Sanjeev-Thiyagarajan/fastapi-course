@@ -31,7 +31,7 @@ app = FastAPI(
     title="Blog Project",
     description="A sample API to manage user's blogs",
     version=version,
-    lifespan=lifespan
+    # lifespan=lifespan
 )
 
 

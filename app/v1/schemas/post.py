@@ -3,6 +3,7 @@ from datetime import datetime
 import uuid
 
 
+
 class PostBase(BaseModel):
     title: str
     content: str

@@ -19,6 +19,7 @@ class Post(SQLModel, table=True):
     
     
     owner : Optional["User"] = Relationship(back_populates="posts")
+    votes : Optional["Vote"] = Relationship(back_populates="posts")
     
     def __repr__(self) -> str:
         return f"<Post {self.title}"
@@ -48,7 +49,7 @@ class Vote(SQLModel,table=True):
     user_uid: Optional[uuid.UUID] = Field(default=None,foreign_key="users.uid")
     post_uid: Optional[uuid.UUID] = Field(default=None, foreign_key="posts.uid")
     
-    
+    posts : List["Post"] = Relationship(back_populates="votes")
 
 
 

@@ -15,6 +15,13 @@ class PostService:
         
         return posts
     
+    async def get_user_post(self,user_uid:str,session:AsyncSession):
+        statement = select(Post).where(Post.user_uid == user_uid).order_by(desc(Post.created_at))
+        
+        result = await session.exec(statement=statement)
+        
+        return result.all()
+    
     async def get_posts_by_id(self,post_uid:str,session:AsyncSession):
         
         statement = select(Post).where(Post.uid == post_uid)
@@ -27,15 +34,15 @@ class PostService:
         return user_posts if user_posts is not None else None
     
     
-    async def create_new_posts(self,post_data:PostCreate,session:AsyncSession):
+    async def create_new_posts(self,user_uid: str, post_data:PostCreate,session:AsyncSession):
         
         new_post_data = post_data.model_dump()
         
         new_post = Post(**new_post_data)
         
         new_post.published_date = new_post_data["published_date"]
-        
-        # new_post.user_uid = user_uid
+                
+        new_post.user_uid = user_uid
         
         session.add(new_post)
         
