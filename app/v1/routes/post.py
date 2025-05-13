@@ -6,6 +6,7 @@ from app.v1.service.post import PostService
 from app.db.database import get_session
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from app.core.depedencies import AccessTokenBearer,RoleChecker
+from app.utils.errors import PostNotFound
 
 post_router = APIRouter()
 post_service = PostService()
@@ -49,7 +50,7 @@ async def update_post(post_uid:str, post_data:PostCreate, session:AsyncSession=D
     book_to_update = await post_service.update_post(post_uid,post_data,session)
 
     if book_to_update is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
+        raise PostNotFound()
     else:
         return book_to_update
     
@@ -60,4 +61,4 @@ async def delete_post(post_uid:str,session:AsyncSession = Depends(get_session),t
     post = await post_service.delete_post(post_uid=post_uid,session=session)
     
     if post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise PostNotFound()

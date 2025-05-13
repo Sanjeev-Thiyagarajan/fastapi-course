@@ -5,6 +5,7 @@ from sqlmodel import select,desc
 from app.v1.schemas.post import PostCreate, PostOut,VoteRead
 from datetime import datetime
 from sqlalchemy.orm import selectinload
+from app.utils.errors import PostNotFound
 
 class PostService:
     async def get_all_posts(self,session:AsyncSession):
@@ -81,7 +82,7 @@ class PostService:
             await session.commit()
             
             return post
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise PostNotFound()
     
     
     async def delete_post(self,post_uid:str, session:AsyncSession):

@@ -7,6 +7,8 @@ from app.v1.routes.auth import auth_router
 from app.v1.routes.post import post_router
 from app.v1.routes.vote import vote_router
 from app.db.database import initdb
+from app.utils.errors import register_error_handlers
+
 
 
 # models.Base.metadata.create_all(bind=engine)
@@ -33,6 +35,8 @@ app = FastAPI(
     version=version,
     # lifespan=lifespan
 )
+
+register_error_handlers(app)
 
 
 app.include_router(auth_router,prefix=f"/api/{version}/auth", tags=["Auth"])
