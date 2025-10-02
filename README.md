@@ -16,7 +16,7 @@
 
 ## 4) Vote route
 
- #### This route is about likes or vote system and this route contain code for upvote or back vote there is not logic about down vote
+ #### This route is about likes or vote system and this route contains code for upvote or back vote and there is no logic about down vote
 
 # how to run locally
 First clone this repo by using following command
@@ -40,7 +40,7 @@ pip install fastapi[all]
 
 ````
 
-Then go this repo folder in your local computer run follwoing command
+Then go to this repo folder in your local computer and run the following command
 ````
 
 uvicorn main:app --reload
@@ -56,7 +56,7 @@ http://127.0.0.1:8000/docs
 ````
 
 ## After run this API you need a database in postgres 
-Create a database in postgres then create a file name .env and write the following things in you file 
+Create a database in postgres, then create a file name .env and write the following things in your file 
 
 ````
 DATABASE_HOSTNAME = localhost
@@ -69,10 +69,10 @@ ALGORITHM = HS256
 ACCESS_TOKEN_EXPIRE_MINUTES = 60(base)
 
 ````
-### Note: SECRET_KEY in this exmple is just a psudo key. You need to get a key for youself and you can get the SECRET_KEY  from fastapi documantion
+### Note: SECRET_KEY in this example is just a pseudo key. You need to get a key for yourself and you can get the SECRET_KEY from fastapi documentation
  
 
-### Here is the link of the playlist on youtube you can learn all about FASTAPI
+### Here is the link of the playlist on youtube where you can learn all about FASTAPI
  
 <div id="badges">
   <a href="https://www.youtube.com/watch?v=Yw4LmMQXXFs&list=PL8VzFQ8k4U1L5QpSapVEzoSfob-4CR8zM&index=2">
